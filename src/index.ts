@@ -13,16 +13,13 @@ class ceveKMGather {
     }
     async init() {
         await this.db.inited;
-    }
-    async gatherKMInfoFromKb(pages: number = 1) {
-        await this.KbGather.loadKmInfo(pages);
+        this.KbGather.loadKmInfo(1);
     }
 }
 
 let service = new ceveKMGather(config)
-async function start(){
+async function start() {
     await service.init()
-    await service.gatherKMInfoFromKb();
 }
 
 start()
