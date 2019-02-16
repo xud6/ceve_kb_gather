@@ -68,13 +68,13 @@ export class KMGather {
             }
             console.log(`Id missing from ${JSON.stringify(tr)}`);
         })
-        let killInfos:killInfo[] = []
+        let killInfos: killInfo[] = []
         for (let killId of killIds) {
             let hash = await this.readKillHash(killId);
             if (hash) {
                 killInfos.push({
-                    id:killId,
-                    hash:hash
+                    id: killId,
+                    hash: hash
                 })
             }
         }
@@ -102,7 +102,7 @@ export class KMGather {
         });
         if (killLinks.length == 1) {
             let link = _.replace(killLinks[0], `${esiKillmailsApi}/${killId}/`, '')
-            let hash = _.replace(link, '/')
+            let hash = _.replace(link, '/', '')
             console.log(`success read hash for kill ${killId}`)
             return hash;
         } else {
