@@ -1,4 +1,4 @@
 import { KMGather } from './KMGather'
 
 let gather = new KMGather()
-gather.readKBList();
+gather.bulkReadKBList(10);

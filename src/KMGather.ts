@@ -25,8 +25,8 @@ function findkbtable(node: any): boolean {
     return false;
 }
 
-interface killInfo {
-    id: string,
+interface kmInfo {
+    id: number,
     hash: string
 }
 
@@ -34,7 +34,22 @@ export class KMGather {
     constructor() {
 
     }
-    async readKBList(afterId?: number) {
+    async bulkReadKBList(pages: number = 1, afterId: number | undefined = undefined) {
+        let lastId: undefined | number = afterId
+        let kminfos: kmInfo[] = []
+        while (pages--) {
+            let kms = await this.readKBList(lastId);
+            let lastKM = _.last(kms);
+            if(lastKM){
+                lastId = lastKM.id
+            }else{
+                console.log(`bulk read end with ${pages} page remain because of no new record found`)
+                return
+            }
+            console.log(`${pages} pages to read`)
+        }
+    }
+    async readKBList(afterId?: number):Promise<kmInfo[]> {
         let url = kbBaseURL;
         if (afterId) {
             url = `${kbBaseURL}/?next=${afterId}`
@@ -50,15 +65,16 @@ export class KMGather {
         let kbtableBodyTrs = FindHTMLASTNode(kbtableBody.childNodes, (node: any) => {
             return (node.tagName == 'tr')
         })
-        let killIds: string[] = [];
+        let killIds: number[] = [];
         kbtableBodyTrs.forEach((tr) => {
             if (_.isArray(tr.attrs)) {
                 for (let attr of tr.attrs) {
                     if (attr.name == 'id') {
                         let killId = _.replace(attr.value, 'kbtable_placeholder_', '')
                         try {
-                            if (parseInt(killId))
-                                killIds.push(killId);
+                            let tid = parseInt(killId)
+                            if (tid)
+                                killIds.push(tid);
                             return;
                         } catch (e) {
                             console.log(`killId process error ${format(e)}`)
@@ -68,9 +84,9 @@ export class KMGather {
             }
             console.log(`Id missing from ${JSON.stringify(tr)}`);
         })
-        let killInfos: killInfo[] = []
+        let killInfos: kmInfo[] = []
         for (let killId of killIds) {
-            let hash = await this.readKillHash(killId);
+            let hash = await this.readKillHash(killId.toString());
             if (hash) {
                 killInfos.push({
                     id: killId,
@@ -78,7 +94,8 @@ export class KMGather {
                 })
             }
         }
-        console.log(killInfos);
+        console.log(`read ${killInfos.length} kms after ${afterId}`)
+        return killInfos;
     }
     async readKillHash(killId: string): Promise<string | null> {
         let marketurl = `${kbBaseURL}/kill/${killId}/`
