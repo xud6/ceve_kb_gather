@@ -33,38 +33,53 @@ interface tKmInfo {
 }
 
 export class KbGather {
-    constructor(readonly config:{
-        db:typeormdb
+    constructor(readonly config: {
+        db: typeormdb
     }) {
 
     }
-    async checkAndInsertKmInfo(info:tKmInfo):Promise<boolean>{
+    async checkAndInsertKmInfo(info: tKmInfo): Promise<boolean> {
         let repo = await this.config.db.getRepository(kmAuthInfo)
         let record = await repo.findOne({
-            id:info.id
+            id: info.id
         })
-        if(record){
+        if (record) {
             // console.log(`km ${kmInfo.id} already exist`)
             return false
-        }else{
+        } else {
             await repo.insert(info)
             // console.log(`km ${kmInfo.id} added to the db`)
             return true
         }
     }
-    async loadKmInfo(pages: number = 1, afterId: number | undefined = undefined){
-        let KmInfos = await this.bulkReadKmInfo(pages, afterId);
-        let newKmInfo:tKmInfo[] = [];
-        for(let kminfo of KmInfos){
-            let isNew = await this.checkAndInsertKmInfo(kminfo);
-            if(isNew){
-                newKmInfo.push(kminfo)
+    async loadKmInfo(pages: number = 1, afterId: number | undefined = undefined) {
+        let lastId: undefined | number = afterId
+        let newKmInfo: tKmInfo[] = [];
+        while (pages--) {
+            let kmInfos = await this.readKBList(lastId);
+            let newKms: tKmInfo[] = [];
+            for (let kminfo of kmInfos) {
+                let isNew = await this.checkAndInsertKmInfo(kminfo);
+                if (isNew) {
+                    newKms.push(kminfo)
+                }
             }
+            newKmInfo = newKmInfo.concat(newKms)
+            console.log(`Load ${kmInfos.length} KMs from KB site, ${newKms.length} new, ${kmInfos.length - newKms.length} old`)
+            let lastKM = _.last(kmInfos);
+
+            if (lastKM) {
+                lastId = lastKM.id
+            } else {
+                console.log(`bulk read end with ${pages} page remain because of no new record found`)
+                return newKmInfo
+            }
+            console.log(`${pages} pages to read`)
         }
-        console.log(`Load ${KmInfos.length} KMs from KB site, ${newKmInfo.length} new, ${KmInfos.length - newKmInfo.length} old`)
+        console.log(`read ${newKmInfo.length} new kms after ${afterId}`)
         return newKmInfo
     }
-    async bulkReadKmInfo(pages: number = 1, afterId: number | undefined = undefined):Promise<tKmInfo[]> {
+    async bulkReadKmInfo(pages: number = 1, afterId: number | undefined = undefined): Promise<tKmInfo[]> {
         let lastId: undefined | number = afterId
         let kminfos: tKmInfo[] = []
         while (pages--) {
@@ -72,9 +87,9 @@ export class KbGather {
             let lastKM = _.last(kms);
             kminfos = kminfos.concat(kms);
 
-            if(lastKM){
+            if (lastKM) {
                 lastId = lastKM.id
-            }else{
+            } else {
                 console.log(`bulk read end with ${pages} page remain because of no new record found`)
                 return kminfos
             }
@@ -83,7 +98,7 @@ export class KbGather {
         console.log(`read ${kminfos.length} kms after ${afterId}`)
         return kminfos
     }
-    async readKBList(afterId?: number):Promise<tKmInfo[]> {
+    async readKBList(afterId?: number): Promise<tKmInfo[]> {
         let url = kbBaseURL;
         if (afterId) {
             url = `${kbBaseURL}/?next=${afterId}`

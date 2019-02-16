@@ -13,7 +13,7 @@ class ceveKMGather {
     }
     async init() {
         await this.db.inited;
-        this.KbGather.loadKmInfo(1);
+        this.KbGather.loadKmInfo(10);
     }
 }
 
