@@ -1,0 +1,41 @@
+{
+  "name": "@xdq/ceve_kb_gather",
+  "version": "1.0.0",
+  "description": "ceve_kb_gather",
+  "main": "dist/index.js",
+  "typings": "dist/definitions/index.d.ts",
+  "scripts": {
+    "test": "gulp test",
+    "build": "gulp build",
+    "prepublishOnly": "gulp prePublish",
+    "preversion": "gulp docBuild",
+    "version": "jsdoc2md dist/index.js > readme.md && git add -A readme.md",
+    "debug": "ts-node debug/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+  ],
+  "author": "xdq",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
+    "chai": "^4.2.0",
+    "del": "^3.0.0",
+    "gulp": "^4.0.0",
+    "gulp-mocha": "^6.0.0",
+    "gulp-typescript": "^5.0.0",
+    "jsdoc-to-markdown": "^4.0.0",
+    "merge2": "^1.2.3",
+    "mocha": "^5.2.0",
+    "ts-node": "^8.0.1",
+    "typescript": "^3.2.2"
+  },
+  "dependencies": {},
+  "files": [
+    "dist"
+  ]
+}
