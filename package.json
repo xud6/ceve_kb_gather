@@ -10,7 +10,8 @@
     "prepublishOnly": "gulp prePublish",
     "preversion": "gulp docBuild",
     "version": "jsdoc2md dist/index.js > readme.md && git add -A readme.md",
-    "debug": "ts-node debug/index.ts"
+    "debug": "ts-node debug/index.ts",
+    "run": "ts-node src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -21,7 +22,9 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "@types/chai": "^4.1.7",
+    "@types/got": "^9.4.0",
     "@types/mocha": "^5.2.5",
+    "@types/parse5": "^5.0.0",
     "chai": "^4.2.0",
     "del": "^3.0.0",
     "gulp": "^4.0.0",
