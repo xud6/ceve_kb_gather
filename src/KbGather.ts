@@ -4,6 +4,7 @@ import _ from 'lodash'
 import { FindHTMLASTNode } from './HTMLAST';
 import { format } from 'util';
 import { typeormdb } from './db';
+import { KmInfo } from './db/entity/KmInfo';
 
 const kbBaseURL = "https://kb.ceve-market.org"
 const esiKillmailsApi = "https://esi.evepc.163.com/latest/killmails"
@@ -32,10 +33,36 @@ interface kmInfo {
 }
 
 export class KbGather {
-    constructor(config:{
+    constructor(readonly config:{
         db:typeormdb
     }) {
 
+    }
+    async checkAndInsertKmInfo(kmInfo:kmInfo):Promise<boolean>{
+        let repo = await this.config.db.getRepository(KmInfo)
+        let record = await repo.findOne({
+            id:kmInfo.id
+        })
+        if(record){
+            // console.log(`km ${kmInfo.id} already exist`)
+            return false
+        }else{
+            await repo.insert(kmInfo)
+            // console.log(`km ${kmInfo.id} added to the db`)
+            return true
+        }
+    }
+    async loadKmInfo(pages: number = 1, afterId: number | undefined = undefined){
+        let KmInfos = await this.bulkReadKmInfo(pages, afterId);
+        let newKmInfo:kmInfo[] = [];
+        for(let kminfo of KmInfos){
+            let isNew = await this.checkAndInsertKmInfo(kminfo);
+            if(isNew){
+                newKmInfo.push(kminfo)
+            }
+        }
+        console.log(`Load ${KmInfos.length} KMs from KB site, ${newKmInfo.length} new, ${KmInfos.length - newKmInfo.length} old`)
+        return newKmInfo
     }
     async bulkReadKmInfo(pages: number = 1, afterId: number | undefined = undefined):Promise<kmInfo[]> {
         let lastId: undefined | number = afterId
@@ -43,6 +70,8 @@ export class KbGather {
         while (pages--) {
             let kms = await this.readKBList(lastId);
             let lastKM = _.last(kms);
+            kminfos = kminfos.concat(kms);
+
             if(lastKM){
                 lastId = lastKM.id
             }else{

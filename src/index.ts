@@ -15,7 +15,7 @@ class ceveKMGather {
         await this.db.inited;
     }
     async gatherKMInfoFromKb(pages: number = 1) {
-        await this.KbGather.bulkReadKmInfo(pages);
+        await this.KbGather.loadKmInfo(pages);
     }
 }
 
