@@ -48,6 +48,8 @@ export class KMGather {
             }
             console.log(`${pages} pages to read`)
         }
+        console.log(`read ${kminfos.length} kms after ${afterId}`)
+        return kminfos
     }
     async readKBList(afterId?: number):Promise<kmInfo[]> {
         let url = kbBaseURL;
