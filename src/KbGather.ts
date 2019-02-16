@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { FindHTMLASTNode } from './HTMLAST';
 import { format } from 'util';
 import { typeormdb } from './db';
-import { KmInfo } from './db/entity/KmInfo';
+import { kmAuthInfo } from './db/entity/kmAuthInfo';
 
 const kbBaseURL = "https://kb.ceve-market.org"
 const esiKillmailsApi = "https://esi.evepc.163.com/latest/killmails"
@@ -27,7 +27,7 @@ function findkbtable(node: any): boolean {
     return false;
 }
 
-interface kmInfo {
+interface tKmInfo {
     id: number,
     hash: string
 }
@@ -38,23 +38,23 @@ export class KbGather {
     }) {
 
     }
-    async checkAndInsertKmInfo(kmInfo:kmInfo):Promise<boolean>{
-        let repo = await this.config.db.getRepository(KmInfo)
+    async checkAndInsertKmInfo(info:tKmInfo):Promise<boolean>{
+        let repo = await this.config.db.getRepository(kmAuthInfo)
         let record = await repo.findOne({
-            id:kmInfo.id
+            id:info.id
         })
         if(record){
             // console.log(`km ${kmInfo.id} already exist`)
             return false
         }else{
-            await repo.insert(kmInfo)
+            await repo.insert(info)
             // console.log(`km ${kmInfo.id} added to the db`)
             return true
         }
     }
     async loadKmInfo(pages: number = 1, afterId: number | undefined = undefined){
         let KmInfos = await this.bulkReadKmInfo(pages, afterId);
-        let newKmInfo:kmInfo[] = [];
+        let newKmInfo:tKmInfo[] = [];
         for(let kminfo of KmInfos){
             let isNew = await this.checkAndInsertKmInfo(kminfo);
             if(isNew){
@@ -64,9 +64,9 @@ export class KbGather {
         console.log(`Load ${KmInfos.length} KMs from KB site, ${newKmInfo.length} new, ${KmInfos.length - newKmInfo.length} old`)
         return newKmInfo
     }
-    async bulkReadKmInfo(pages: number = 1, afterId: number | undefined = undefined):Promise<kmInfo[]> {
+    async bulkReadKmInfo(pages: number = 1, afterId: number | undefined = undefined):Promise<tKmInfo[]> {
         let lastId: undefined | number = afterId
-        let kminfos: kmInfo[] = []
+        let kminfos: tKmInfo[] = []
         while (pages--) {
             let kms = await this.readKBList(lastId);
             let lastKM = _.last(kms);
@@ -83,7 +83,7 @@ export class KbGather {
         console.log(`read ${kminfos.length} kms after ${afterId}`)
         return kminfos
     }
-    async readKBList(afterId?: number):Promise<kmInfo[]> {
+    async readKBList(afterId?: number):Promise<tKmInfo[]> {
         let url = kbBaseURL;
         if (afterId) {
             url = `${kbBaseURL}/?next=${afterId}`
@@ -118,7 +118,7 @@ export class KbGather {
             }
             console.log(`Id missing from ${JSON.stringify(tr)}`);
         })
-        let killInfos: kmInfo[] = []
+        let killInfos: tKmInfo[] = []
         for (let killId of killIds) {
             let hash = await this.readKillHash(killId.toString());
             if (hash) {
