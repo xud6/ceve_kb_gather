@@ -3,6 +3,7 @@ import parse5 from 'parse5'
 import _ from 'lodash'
 import { FindHTMLASTNode } from './HTMLAST';
 import { format } from 'util';
+import { typeormdb } from './db';
 
 const kbBaseURL = "https://kb.ceve-market.org"
 const esiKillmailsApi = "https://esi.evepc.163.com/latest/killmails"
@@ -30,11 +31,13 @@ interface kmInfo {
     hash: string
 }
 
-export class KMGather {
-    constructor() {
+export class KbGather {
+    constructor(config:{
+        db:typeormdb
+    }) {
 
     }
-    async bulkReadKBList(pages: number = 1, afterId: number | undefined = undefined) {
+    async bulkReadKmInfo(pages: number = 1, afterId: number | undefined = undefined):Promise<kmInfo[]> {
         let lastId: undefined | number = afterId
         let kminfos: kmInfo[] = []
         while (pages--) {
@@ -44,7 +47,7 @@ export class KMGather {
                 lastId = lastKM.id
             }else{
                 console.log(`bulk read end with ${pages} page remain because of no new record found`)
-                return
+                return kminfos
             }
             console.log(`${pages} pages to read`)
         }
@@ -122,7 +125,7 @@ export class KMGather {
         if (killLinks.length == 1) {
             let link = _.replace(killLinks[0], `${esiKillmailsApi}/${killId}/`, '')
             let hash = _.replace(link, '/', '')
-            console.log(`success read hash for kill ${killId}`)
+            console.log(`success read hash for kill ${killId} hash is ${hash}`)
             return hash;
         } else {
             console.log(`kill ${killId} killLinks length unexpected get ${killLinks.length}`)
