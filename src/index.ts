@@ -19,10 +19,10 @@ class ceveKMGather {
     }
 }
 
-
 let service = new ceveKMGather(config)
 async function start(){
     await service.init()
     await service.gatherKMInfoFromKb();
 }
+
 start()
