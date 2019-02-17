@@ -1,5 +1,6 @@
-import {Entity, PrimaryColumn, Column, OneToOne} from "typeorm";
+import {Entity, PrimaryColumn, Column, OneToOne, ManyToOne} from "typeorm";
 import { KmAuthinfo } from "./KmAuthinfo";
+import { War } from "./War";
 
 @Entity()
 export class Killmail {
@@ -11,4 +12,7 @@ export class Killmail {
 
     @OneToOne(type => KmAuthinfo)
     kmAuthinfo: KmAuthinfo;
+
+    @ManyToOne(type => War, war => war.killmails)
+    war: War;
 }
