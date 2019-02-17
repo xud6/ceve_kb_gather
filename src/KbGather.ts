@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { FindHTMLASTNode } from './HTMLAST';
 import { format } from 'util';
 import { typeormdb } from './db';
-import { kmAuthInfo } from './db/entity/kmAuthInfo';
+import { KmAuthinfo } from './db/entity/kmAuthInfo';
 
 const kbBaseURL = "https://kb.ceve-market.org"
 const esiKillmailsApi = "https://esi.evepc.163.com/latest/killmails"
@@ -39,7 +39,7 @@ export class KbGather {
 
     }
     async checkAndInsertKmInfo(info: tKmInfo): Promise<boolean> {
-        let repo = await this.config.db.getRepository(kmAuthInfo)
+        let repo = await this.config.db.getRepository(KmAuthinfo)
         let record = await repo.findOne({
             id: info.id
         })

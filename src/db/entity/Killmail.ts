@@ -1,5 +1,5 @@
 import {Entity, PrimaryColumn, Column, OneToOne} from "typeorm";
-import { kmAuthInfo } from "./kmAuthInfo";
+import { KmAuthinfo } from "./KmAuthinfo";
 
 @Entity()
 export class Killmail {
@@ -9,6 +9,6 @@ export class Killmail {
     @Column("jsonb")
     apiData: any
 
-    @OneToOne(type => kmAuthInfo)
-    kmInfo: kmAuthInfo;
+    @OneToOne(type => KmAuthinfo)
+    kmAuthinfo: KmAuthinfo;
 }
