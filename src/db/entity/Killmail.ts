@@ -1,8 +1,8 @@
-import {Entity, PrimaryColumn, Column, OneToOne, JoinColumn} from "typeorm";
+import {Entity, PrimaryColumn, Column, OneToOne} from "typeorm";
 import { kmAuthInfo } from "./kmAuthInfo";
 
 @Entity()
-export class km {
+export class Killmail {
     @PrimaryColumn()
     id: number;
 

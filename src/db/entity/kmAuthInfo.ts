@@ -1,5 +1,5 @@
 import { Entity, PrimaryColumn, Column, OneToOne, JoinColumn } from "typeorm";
-import { km } from "./km";
+import { Killmail } from "./Killmail";
 
 @Entity()
 export class kmAuthInfo {
@@ -9,10 +9,10 @@ export class kmAuthInfo {
     @Column("varchar", { length: 100 })
     hash: string
 
-    @OneToOne(type => km, {
+    @OneToOne(type => Killmail, {
         onDelete: "SET NULL",
         nullable: true
     })
     @JoinColumn()
-    km: km;
+    killmail: Killmail;
 }
